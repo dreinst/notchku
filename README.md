@@ -77,4 +77,4 @@ Issue dan pull request terbuka. Panduan gaya kode ada di [AGENTS.md](AGENTS.md).
 
 ## Lisensi
 
-MIT. Lihat [LICENSE](LICENSE).
+NotchKu dirilis dengan lisensi MIT, Copyright (c) 2026 dreinst. Kamu bebas memakai, mengubah, dan membagikannya, termasuk untuk keperluan komersial, selama teks lisensinya ikut disertakan. Teks lengkapnya ada di [LICENSE](LICENSE).
