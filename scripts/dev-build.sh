@@ -1,7 +1,7 @@
 #!/bin/zsh
-# Build sementara tanpa Xcode: SwiftPM di /tmp/notchku-check, hasilnya build/NotchKu.app
+# Build sementara tanpa Xcode: SwiftPM di build/spm (bukan /tmp: Pow mencari resource bundle di path build ini), hasilnya build/NotchKu.app
 set -e
-R=${0:A:h:h}; C=/tmp/notchku-check
+R=${0:A:h:h}; C=$R/build/spm
 mkdir -p $C/Sources && cp $R/scripts/Package.swift $C/Package.swift
 rm -rf $C/Sources/NotchKu && cp -R $R/NotchDrop $C/Sources/NotchKu
 python3 -c "
