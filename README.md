@@ -1,107 +1,80 @@
-# NotchDrop
+# NotchKu
 
-Transform your MacBook's notch into a convenient file drop zone.
+Notch di MacBook kamu selama ini cuma potongan hitam di tengah layar. NotchKu mengubahnya jadi pusat kecil yang hidup, mirip Dynamic Island di iPhone. Arahkan kursor ke notch dan panelnya langsung mengembang. Geser kursor menjauh dan panelnya menyusut lagi. Tidak perlu klik.
 
-[简体中文 🇨🇳](./Resources/i18n/zh-Hans/README.md)
+Gratis, open source (MIT), dan semua datanya tetap di Mac kamu.
 
-[![App Store Icon](./Resources/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg)](https://apps.apple.com/app/notchdrop/id6529528324)
+## Kenapa NotchKu
 
-For Developers: You can use [NotchNotification](https://github.com/Lakr233/NotchNotification) in your app, powered by NotchDrop.
+Kebanyakan aplikasi notch hanya bisa satu hal. NotchKu menggabungkan hal-hal kecil yang sering dipakai seharian ke satu tempat yang selalu ada di atas layar.
 
-## 👀 Preview
+### Terasa seperti Dynamic Island
 
-![Screenshot](./Resources/截屏2024-07-08%2003.14.34.png)
+Panel terbuka begitu kursor menyentuh notch, dengan animasi pegas yang memantul sedikit dan isi yang muncul dari buram ke tajam. Saat dibuka lewat hover, NotchKu tidak merebut fokus, jadi ketikanmu di aplikasi lain tidak terputus.
 
-## 🌟 Key Features
+### Tray file sementara
 
-- [x] Should work with your menu bar managers
-- [x] Drag and drop files to the notch
-- [x] Open AirDrop directly from the notch
-- [x] Automatically save files for 1 day, can be configured
-- [x] Open files with a simple click
-- [x] Delete files by holding the option key and clicking the x mark
-- [x] Fully open source and privacy-focused
-- [x] Free of charge if you do it yourself
+Seret file apa pun ke notch untuk menyimpannya sebentar, lalu seret keluar lagi ke aplikasi tujuan. Cocok untuk memindahkan file antar jendela, antar Space, atau ke AirDrop tanpa menumpuk isi Desktop. File di tray dibersihkan otomatis setelah masa simpannya habis (bisa diatur).
 
-## 🚀 Usage
+### Screenshot langsung tertangkap
 
-Download the latest version from [Releases](https://github.com/Lakr233/NotchDrop/releases).
+Setiap screenshot baru di folder screenshot macOS dipindah ke tray dan notch terbuka sekilas selama 4 detik supaya kamu bisa langsung menyeretnya ke chat, email, atau dokumen. Kalau tidak dipakai, setelah 1 jam file itu dikembalikan ke folder asalnya. Desktop tetap bersih dan tidak ada screenshot yang hilang.
 
-## 🔨 Building from Source
+### Kabar Bluetooth
 
-### Prerequisites
-- macOS with Xcode installed
-- Xcode Command Line Tools
+AirPods, mouse, atau keyboard tersambung dan terputus muncul sebagai kabar singkat di samping notch.
 
-### Build Instructions
+### Timer fokus dengan Spotify
 
-#### For Personal Daily Use (Production Build)
+Mulai sesi fokus 25, 50, atau 90 menit dari notch. Sisa waktunya tampil di samping notch selama sesi berjalan. Lagu yang sedang diputar di Spotify (judul, artwork, putar, jeda, lewati) bisa dikendalikan dari panel yang sama.
 
-This creates a production-optimized build that you can use daily on your Mac.
+### Kabar rekaman Plaud
 
-1. Clone the repository:
+Pengguna Plaud Note bisa menghubungkan akunnya dari menu notch. NotchKu mengecek akun Plaud tiap 2 menit dan memberi tahu kalau ada rekaman baru yang masuk. Token login disimpan di Keychain macOS.
+
+## Kebutuhan
+
+- macOS 14 Sonoma atau lebih baru
+- Paling pas di MacBook yang punya notch
+
+## Pasang dari kode sumber
+
+Cara tercepat, tanpa Xcode, cukup Command Line Tools (`xcode-select --install`):
+
 ```bash
-git clone https://github.com/Lakr233/NotchDrop.git
-cd NotchDrop
+git clone https://github.com/dreinst/notchku.git
+cd notchku
+zsh scripts/dev-build.sh
 ```
 
-2. Build the app in Release configuration:
-```bash
-xcodebuild -project NotchDrop.xcodeproj \
-  -scheme NotchDrop \
-  -configuration Release \
-  clean build \
-  CODE_SIGN_IDENTITY="-" \
-  CODE_SIGNING_REQUIRED=NO \
-  CODE_SIGNING_ALLOWED=NO
-```
+Skrip ini membangun `build/NotchKu.app` dengan Swift Package Manager lalu langsung membukanya. Pindahkan ke folder Applications kalau mau dipakai sehari-hari.
 
-3. Copy the built app to your Applications folder:
-```bash
-cp -R ~/Library/Developer/Xcode/DerivedData/NotchDrop-*/Build/Products/Release/NotchDrop.app ~/Applications/
-```
+Kalau kamu punya Xcode, buka `NotchDrop.xcodeproj`, pilih skema `NotchDrop`, lalu Run.
 
-4. Launch the app:
-```bash
-open ~/Applications/NotchDrop.app
-```
+### Tanda tangan lokal (opsional)
 
-**Note:** On first launch, macOS may show a security warning. To open:
-- Right-click on `NotchDrop.app` in Applications
-- Select "Open"
-- Click "Open" in the security dialog
+Build tanpa sertifikat ditandatangani ad-hoc, jadi macOS bisa menanyakan ulang izin Bluetooth dan Automation tiap kali build. Supaya izin itu tetap tersimpan, buat sertifikat penandatanganan kode bernama `NotchKu Local` lewat Keychain Access (Certificate Assistant, Create a Certificate, tipe Code Signing). `dev-build.sh` otomatis memakainya kalau ada.
 
-After the first time, the app will open normally.
+### Menghentikan NotchKu
 
-#### What This Build Does
+Jalankan `Resources/KillNotchKu.command` atau `pkill -x NotchKu`.
 
-- **Release Configuration**: Builds with optimizations enabled for better performance
-- **Self-Signed**: Uses ad-hoc code signing (no Apple Developer account needed)
-- **Production Ready**: Suitable for daily use on your Mac
-- **Binary Size**: ~5.1MB
-- **Location**: `~/Applications/NotchDrop.app`
+## Izin yang diminta
 
-#### For Development
+| Izin | Untuk apa |
+| --- | --- |
+| Bluetooth | Kabar perangkat tersambung dan terputus |
+| Automation (Spotify) | Membaca lagu yang diputar dan mengendalikannya |
+| Akses folder screenshot | Memindahkan screenshot baru ke tray |
 
-For development work, open the project in Xcode:
-```bash
-open NotchDrop.xcodeproj
-```
+## Privasi
 
-Then build and run using Xcode (⌘R).
+NotchKu tidak mengirim data ke mana pun. Tidak ada analitik dan tidak ada server milik NotchKu. Satu-satunya koneksi keluar adalah ke server Plaud, dan itu hanya terjadi kalau kamu sendiri menghubungkan akun Plaud. Detailnya ada di [Resources/Privacy.md](Resources/Privacy.md).
 
-## 🧑‍⚖️ License
+## Ikut mengembangkan
 
-[MIT License](./LICENSE)
+Issue dan pull request terbuka. Panduan gaya kode ada di [AGENTS.md](AGENTS.md). File Swift baru perlu didaftarkan ke proyek Xcode lewat `python3 scripts/add_swift.py`.
 
-## 🥰 Acknowledgements
+## Lisensi
 
-Special thanks to [NotchNook](https://lo.cafe/notchnook) for providing the initial inspiration. This open-source project focuses more on my own needs, simplifies various configurations, and improves compatibility with the software I prefer.
-
-## Sponsor
-
-[LookInside](https://lookinside-app.com/) helps you inspect a running iOS or macOS app UI from your Mac.
-
----
-
-Copyright © 2024 Lakr Aream. All Rights Reserved.
+MIT. Lihat [LICENSE](LICENSE).

@@ -22,5 +22,6 @@ if [ ! -d $A ]; then
   done
 fi
 cp $B/NotchKu $A/Contents/MacOS/NotchKu
-codesign --force --deep -s "NotchKu Local" --entitlements $R/scripts/dev.entitlements $A
+ID=-; security find-identity -p codesigning | grep -q "NotchKu Local" && ID="NotchKu Local"
+codesign --force --deep -s "$ID" --entitlements $R/scripts/dev.entitlements $A
 pkill -x NotchKu || true; sleep 0.5; open $A
