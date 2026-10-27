@@ -12,6 +12,9 @@ class TrayDrop: ObservableObject {
     var keepInterval: TimeInterval
 
     private init() {
+        Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            self?.cleanExpiredFiles()
+        }
         Publishers.CombineLatest3(
             $selectedFileStorageTime.removeDuplicates(),
             $customStorageTime.removeDuplicates(),
@@ -46,7 +49,7 @@ class TrayDrop: ObservableObject {
     @PublishedPersist(key: "TrayDropItems", defaultValue: .init())
     var items: OrderedSet<DropItem>
 
-    @PublishedPersist(key: "selectedFileStorageTime", defaultValue: .oneDay)
+    @PublishedPersist(key: "selectedFileStorageTime", defaultValue: .oneHour)
     var selectedFileStorageTime: FileStorageTime
 
     @PublishedPersist(key: "customStorageTime", defaultValue: 1)
@@ -68,10 +71,10 @@ class TrayDrop: ObservableObject {
         DispatchQueue.main.async { self.isLoading -= 1 }
     }
 
-    func add(_ urls: [URL]) {
+    func add(_ urls: [URL], move: Bool = false) {
         assert(!Thread.isMainThread)
         do {
-            let items = try urls.map { try DropItem(url: $0) }
+            let items = try urls.map { try DropItem(url: $0, move: move) }
             DispatchQueue.main.async {
                 items.forEach { self.items.updateOrInsert($0, at: 0) }
             }
@@ -81,12 +84,25 @@ class TrayDrop: ObservableObject {
     }
 
     func cleanExpiredFiles() {
-        var inEdit = items
-        let shouldCleanItems = items.filter(\.shouldClean)
-        for item in shouldCleanItems {
-            inEdit.remove(item)
+        for item in items.filter(\.shouldClean) {
+            if let folder = item.returnTo {
+                restore(item, to: folder)
+            }
+            delete(item: item)
         }
-        items = inEdit
+    }
+
+    private func restore(_ item: DropItem, to folder: URL) {
+        let name = (item.fileName as NSString).deletingPathExtension
+        let ext = (item.fileName as NSString).pathExtension
+        var target = folder.appendingPathComponent(item.fileName)
+        var n = 2
+        while FileManager.default.fileExists(atPath: target.path) {
+            target = folder.appendingPathComponent("\(name) \(n)").appendingPathExtension(ext)
+            n += 1
+        }
+        ScreenshotWatcher.shared.ignore(target.lastPathComponent)
+        try? FileManager.default.moveItem(at: item.storageURL, to: target)
     }
 
     func delete(_ item: DropItem.ID) {

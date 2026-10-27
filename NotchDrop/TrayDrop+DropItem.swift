@@ -20,8 +20,10 @@ extension TrayDrop {
 
         let copiedDate: Date
         let workspacePreviewImageData: Data
+        // diisi untuk screenshot: ke folder ini berkasnya dikembalikan setelah masa simpan habis
+        var returnTo: URL?
 
-        init(url: URL) throws {
+        init(url: URL, move: Bool = false) throws {
             assert(!Thread.isMainThread)
 
             id = UUID()
@@ -35,7 +37,12 @@ extension TrayDrop {
                 at: storageURL.deletingLastPathComponent(),
                 withIntermediateDirectories: true
             )
-            try FileManager.default.copyItem(at: url, to: storageURL)
+            if move {
+                try FileManager.default.moveItem(at: url, to: storageURL)
+                returnTo = url.deletingLastPathComponent()
+            } else {
+                try FileManager.default.copyItem(at: url, to: storageURL)
+            }
         }
     }
 }
