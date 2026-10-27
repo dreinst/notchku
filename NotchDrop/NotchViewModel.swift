@@ -18,11 +18,8 @@ class NotchViewModel: NSObject, ObservableObject {
         destroy()
     }
 
-    let animation: Animation = .interactiveSpring(
-        duration: 0.5,
-        extraBounce: 0.25,
-        blendDuration: 0.125
-    )
+    // pegas cepat dengan pantulan kecil seperti Dynamic Island
+    let animation: Animation = .spring(response: 0.38, dampingFraction: 0.72)
     let notchOpenedSize: CGSize = .init(width: 820, height: 170)
     let dropDetectorRange: CGFloat = 32
 
@@ -34,6 +31,7 @@ class NotchViewModel: NSObject, ObservableObject {
 
     enum OpenReason: String, Codable, Hashable, Equatable {
         case click
+        case hover
         case drag
         case boot
         case screenshot
@@ -87,7 +85,8 @@ class NotchViewModel: NSObject, ObservableObject {
         openReason = reason
         status = .opened
         contentType = .normal
-        NSApp.activate(ignoringOtherApps: true)
+        // hover tidak merebut fokus dari app yang sedang dipakai
+        if reason != .hover { NSApp.activate(ignoringOtherApps: true) }
     }
 
     // buka tanpa merebut fokus, tutup sendiri kalau kursor tidak di atas notch

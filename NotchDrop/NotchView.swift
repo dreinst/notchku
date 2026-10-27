@@ -73,11 +73,8 @@ struct NotchView: View {
                 }
             }
             .transition(
-                .scale.combined(
-                    with: .opacity
-                ).combined(
-                    with: .offset(y: -vm.notchOpenedSize.height / 2)
-                ).animation(vm.animation)
+                .modifier(active: IslandContent(progress: 0), identity: IslandContent(progress: 1))
+                    .animation(vm.animation)
             )
         }
         .background(dragDetector)
@@ -171,5 +168,17 @@ struct NotchView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+}
+
+// isi notch muncul dari tengah atas sambil menajam, seperti isi Dynamic Island
+private struct IslandContent: ViewModifier {
+    let progress: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(0.6 + 0.4 * progress, anchor: .top)
+            .blur(radius: 12 * (1 - progress))
+            .opacity(progress)
     }
 }

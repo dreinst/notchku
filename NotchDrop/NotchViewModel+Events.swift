@@ -23,11 +23,8 @@ extension NotchViewModel {
                     // touch outside, close
                     if !notchOpenedRect.contains(mouseLocation) {
                         notchClose()
-                        // click where user open the panel
-                    } else if deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
-                        notchClose()
-                        // for the same height as device notch, open the url of project
-                    } else if headlineOpenedRect.contains(mouseLocation) {
+                    } else if headlineOpenedRect.contains(mouseLocation),
+                              !deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
                         // for clicking headline which mouse event may handled by another app
                         // open the menu
                         if let nextValue = ContentType(rawValue: contentType.rawValue + 1) {
@@ -63,9 +60,15 @@ extension NotchViewModel {
             .sink { [weak self] mouseLocation in
                 guard let self else { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
-                let aboutToOpen = deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
-                if status == .closed, aboutToOpen { notchPop() }
-                if status == .popping, !aboutToOpen { notchClose() }
+                // ala Dynamic Island: kursor masuk langsung mengembang, keluar langsung menyusut
+                let onNotch = deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
+                if status != .opened, onNotch {
+                    notchOpen(.hover)
+                    hapticSender.send()
+                } else if status == .opened, openReason != .drag,
+                          !notchOpenedRect.contains(mouseLocation) {
+                    notchClose()
+                }
             }
             .store(in: &cancellables)
 
