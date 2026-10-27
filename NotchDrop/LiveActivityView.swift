@@ -12,17 +12,36 @@ struct LiveActivityView: View {
     @ObservedObject var focus = FocusTimer.shared
     @ObservedObject var spotify = Spotify.shared
 
-    static func sideWidth(toast: Bool) -> CGFloat { toast ? 150 : 64 }
+    static func sideWidth(toast: Bool, song: Bool = false) -> CGFloat {
+        toast ? 150 : song ? 110 : 64
+    }
+
+    static let songHeight: CGFloat = 46
+
+    var sideWidth: CGFloat {
+        Self.sideWidth(toast: toaster.current != nil, song: spotify.announcing)
+    }
 
     var body: some View {
-        HStack(spacing: 0) {
-            left
-                .frame(width: Self.sideWidth(toast: toaster.current != nil), alignment: .leading)
-            Spacer(minLength: vm.deviceNotchRect.width)
-            right
-                .frame(width: Self.sideWidth(toast: toaster.current != nil), alignment: .trailing)
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                left
+                    .frame(width: sideWidth, alignment: .leading)
+                Spacer(minLength: vm.deviceNotchRect.width)
+                right
+                    .frame(width: sideWidth, alignment: .trailing)
+            }
+            .padding(.horizontal, 10)
+            .frame(maxHeight: .infinity)
+            if spotify.announcing {
+                song
+                    .frame(height: Self.songHeight)
+                    .transition(.modifier(
+                        active: IslandContent(progress: 0),
+                        identity: IslandContent(progress: 1)
+                    ))
+            }
         }
-        .padding(.horizontal, 10)
         .font(.system(size: 12, weight: .semibold, design: .rounded))
         .foregroundStyle(.white)
         .lineLimit(1)
@@ -34,7 +53,7 @@ struct LiveActivityView: View {
             Image(systemName: toast.icon)
         } else if focus.running {
             Image(systemName: "timer").foregroundStyle(.orange)
-        } else if spotify.playing {
+        } else if spotify.playing, !spotify.announcing {
             if let artwork = spotify.artwork {
                 Image(nsImage: artwork)
                     .resizable()
@@ -59,6 +78,34 @@ struct LiveActivityView: View {
                 .symbolEffect(.variableColor.iterative)
                 .foregroundStyle(.green)
         }
+    }
+
+    var song: some View {
+        HStack(spacing: 10) {
+            Group {
+                if let artwork = spotify.artwork {
+                    Image(nsImage: artwork).resizable()
+                } else {
+                    Image(systemName: "music.note")
+                        .foregroundStyle(.green)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(.white.opacity(0.1))
+                }
+            }
+            .frame(width: 32, height: 32)
+            .clipShape(.rect(cornerRadius: 6))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(spotify.title)
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                Text(spotify.artist)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+            .truncationMode(.tail)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
     }
 }
 

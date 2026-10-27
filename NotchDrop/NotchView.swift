@@ -18,7 +18,11 @@ struct NotchView: View {
 
     var liveActivityWidth: CGFloat {
         guard vm.hasLiveActivity else { return 0 }
-        return LiveActivityView.sideWidth(toast: toaster.current != nil) * 2 + 20
+        return LiveActivityView.sideWidth(toast: toaster.current != nil, song: spotify.announcing) * 2 + 20
+    }
+
+    var songHeight: CGFloat {
+        spotify.announcing ? LiveActivityView.songHeight : 0
     }
 
     var notchSize: CGSize {
@@ -26,7 +30,7 @@ struct NotchView: View {
         case .closed:
             var ans = CGSize(
                 width: vm.deviceNotchRect.width - 4 + liveActivityWidth,
-                height: vm.deviceNotchRect.height - 4
+                height: vm.deviceNotchRect.height - 4 + songHeight
             )
             if ans.width < 0 { ans.width = 0 }
             if ans.height < 0 { ans.height = 0 }
@@ -36,7 +40,7 @@ struct NotchView: View {
         case .popping:
             return .init(
                 width: vm.deviceNotchRect.width + liveActivityWidth,
-                height: vm.deviceNotchRect.height + 4
+                height: vm.deviceNotchRect.height + 4 + songHeight
             )
         }
     }
@@ -80,6 +84,7 @@ struct NotchView: View {
         .background(dragDetector)
         .animation(vm.animation, value: vm.status)
         .animation(vm.animation, value: liveActivityWidth)
+        .animation(vm.animation, value: spotify.announcing)
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -172,7 +177,7 @@ struct NotchView: View {
 }
 
 // isi notch muncul dari tengah atas sambil menajam, seperti isi Dynamic Island
-private struct IslandContent: ViewModifier {
+struct IslandContent: ViewModifier {
     let progress: CGFloat
 
     func body(content: Content) -> some View {

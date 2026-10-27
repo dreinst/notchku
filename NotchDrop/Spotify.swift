@@ -13,6 +13,8 @@ class Spotify: ObservableObject {
     @Published private(set) var title = ""
     @Published private(set) var artist = ""
     @Published private(set) var artwork: NSImage?
+    // judul dan artis tampil sebentar di bawah notch saat lagu mulai atau berganti
+    @Published private(set) var announcing = false
 
     private let bundleID = "com.spotify.client"
     private var trackID = ""
@@ -52,13 +54,28 @@ class Spotify: ObservableObject {
     }
 
     private func update(_ info: [AnyHashable: Any]) {
+        let wasPlaying = playing
         playing = info["Player State"] as? String == "Playing"
         title = info["Name"] as? String ?? title
         artist = info["Artist"] as? String ?? artist
         let id = info["Track ID"] as? String ?? trackID
-        guard id != trackID else { return }
+        let changed = id != trackID
+        if playing, changed || !wasPlaying { announce() }
+        guard changed else { return }
         trackID = id
         loadArtwork()
+    }
+
+    private var announceID = UUID()
+
+    private func announce(for seconds: TimeInterval = 4) {
+        let id = UUID()
+        announceID = id
+        announcing = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) { [weak self] in
+            guard let self, announceID == id else { return }
+            announcing = false
+        }
     }
 
     private func loadArtwork() {
