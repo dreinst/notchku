@@ -30,7 +30,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         _ = EventMonitors.shared
         ScreenshotWatcher.shared.start()
         Spotify.shared.start()
-        if ProcessInfo.processInfo.environment["NOTCHKU_DEMO"] != nil { DispatchQueue.main.asyncAfter(deadline: .now() + 2) { self.mainWindowController?.vm?.notchClose(); FocusTimer.shared.start(minutes: 1); try? "close=\(String(describing: self.mainWindowController?.vm?.status)) running=\(FocusTimer.shared.running)".write(toFile: "/tmp/notchku-check/demo.txt", atomically: true, encoding: .utf8); Toaster.shared.show("airpods", "AirPods Pro tersambung", for: 6) } }
         let timer = Timer.scheduledTimer(
             withTimeInterval: 1,
             repeats: true

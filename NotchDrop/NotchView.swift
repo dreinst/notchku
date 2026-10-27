@@ -56,7 +56,7 @@ struct NotchView: View {
                 .disabled(true)
                 .opacity(vm.notchVisible || vm.hasLiveActivity ? 1 : 0.3)
             if vm.status != .opened, vm.hasLiveActivity {
-                LiveActivityView(vm: vm).background(Color.red)
+                LiveActivityView(vm: vm)
                     .frame(width: notchSize.width, height: notchSize.height)
                     .zIndex(1)
             }
