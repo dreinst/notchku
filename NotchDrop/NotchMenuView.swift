@@ -11,11 +11,13 @@ import SwiftUI
 struct NotchMenuView: View {
     @StateObject var vm: NotchViewModel
     @StateObject var tvm = TrayDrop.shared
+    @ObservedObject var plaud = PlaudWatcher.shared
 
     var body: some View {
         HStack(spacing: vm.spacing) {
             close
             settings
+            plaudButton
             clear
         }
     }
@@ -44,6 +46,19 @@ struct NotchMenuView: View {
         .onTapGesture {
             tvm.removeAll()
             vm.notchClose()
+        }
+        .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
+    }
+
+    var plaudButton: some View {
+        ColorButton(
+            color: [plaud.connected ? .green : .orange],
+            image: Image(systemName: "waveform.badge.mic"),
+            title: plaud.connected ? "Putuskan Plaud" : "Hubungkan Plaud"
+        )
+        .onTapGesture {
+            vm.notchClose()
+            plaud.connected ? plaud.disconnect() : plaud.connect()
         }
         .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
     }

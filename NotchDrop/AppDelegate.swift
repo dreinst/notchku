@@ -30,6 +30,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         _ = EventMonitors.shared
         ScreenshotWatcher.shared.start()
         Spotify.shared.start()
+        PlaudWatcher.shared.start()
         let timer = Timer.scheduledTimer(
             withTimeInterval: 1,
             repeats: true
