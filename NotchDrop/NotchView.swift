@@ -89,10 +89,7 @@ struct NotchView: View {
                     .zIndex(1)
                 }
             }
-            .transition(
-                .modifier(active: IslandContent(progress: 0), identity: IslandContent(progress: 1))
-                    .animation(vm.animation)
-            )
+            .transition(.opacity.animation(vm.animation))
         }
         .background(dragDetector)
         .animation(vm.animation, value: vm.status)
@@ -110,6 +107,8 @@ struct NotchView: View {
                 width: notchSize.width + notchCornerRadius * 2,
                 height: notchSize.height
             )
+            // lapisan mask dan blend mode dirender sekali lewat Metal, tidak dihitung ulang per lapisan tiap frame
+            .drawingGroup()
             .shadow(
                 color: .black.opacity(([.opened, .popping].contains(vm.status)) ? 1 : 0),
                 radius: 16
@@ -189,14 +188,14 @@ struct NotchView: View {
     }
 }
 
-// isi notch muncul dari tengah atas sambil menajam, seperti isi Dynamic Island
+// isi notch muncul dari tengah atas, seperti isi Dynamic Island.
+// tanpa blur: blur dihitung ulang tiap frame dan bikin animasi tersendat
 struct IslandContent: ViewModifier {
     let progress: CGFloat
 
     func body(content: Content) -> some View {
         content
-            .scaleEffect(0.6 + 0.4 * progress, anchor: .top)
-            .blur(radius: 12 * (1 - progress))
+            .scaleEffect(0.8 + 0.2 * progress, anchor: .top)
             .opacity(progress)
     }
 }

@@ -18,8 +18,8 @@ class NotchViewModel: NSObject, ObservableObject {
         destroy()
     }
 
-    // pegas cepat dengan pantulan kecil seperti Dynamic Island
-    let animation: Animation = .spring(response: 0.38, dampingFraction: 0.72)
+    // gerak singkat tanpa pantulan, cukup untuk menunjukkan notch membuka dan menutup
+    let animation: Animation = .easeOut(duration: 0.2)
     let notchOpenedSize: CGSize = .init(width: 820, height: 170)
     let dropDetectorRange: CGFloat = 32
 
@@ -59,6 +59,19 @@ class NotchViewModel: NSObject, ObservableObject {
             y: screenRect.origin.y + screenRect.height - deviceNotchRect.height,
             width: notchOpenedSize.width,
             height: deviceNotchRect.height
+        )
+    }
+
+    // area pemicu hover: separuh lebar notch di tengah, bagian atasnya saja,
+    // supaya kursor yang lewat ke menu bar di samping notch tidak ikut membuka
+    var hoverTriggerRect: CGRect {
+        let width = deviceNotchRect.width / 2
+        let height = deviceNotchRect.height * 0.6
+        return .init(
+            x: deviceNotchRect.midX - width / 2,
+            y: deviceNotchRect.maxY - height,
+            width: width,
+            height: height
         )
     }
 

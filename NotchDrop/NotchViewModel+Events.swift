@@ -60,14 +60,16 @@ extension NotchViewModel {
             .sink { [weak self] mouseLocation in
                 guard let self else { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
-                // ala Dynamic Island: kursor masuk langsung mengembang, keluar langsung menyusut
-                let onNotch = deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
-                if status != .opened, onNotch {
+                // senggol area kecil di tengah notch langsung membuka, tanpa klik dan tanpa jeda
+                switch status {
+                case .closed, .popping:
+                    guard hoverTriggerRect.contains(mouseLocation) else { break }
                     notchOpen(.hover)
                     hapticSender.send()
-                } else if status == .opened, openReason != .drag,
-                          !notchOpenedRect.contains(mouseLocation) {
+                case .opened where openReason != .drag && !notchOpenedRect.contains(mouseLocation):
                     notchClose()
+                default:
+                    break
                 }
             }
             .store(in: &cancellables)
