@@ -28,9 +28,11 @@ struct NotchView: View {
     var notchSize: CGSize {
         switch vm.status {
         case .closed:
+            // tanpa live activity bentuknya sembunyi di balik notch fisik, jadi dibuat sedikit lebih kecil.
+            // dengan live activity tingginya harus sama, kalau tidak notch fisik menonjol di bawah bar
             var ans = CGSize(
                 width: vm.deviceNotchRect.width - 4 + liveActivityWidth,
-                height: vm.deviceNotchRect.height - 4 + songHeight
+                height: vm.deviceNotchRect.height - (vm.hasLiveActivity ? 0 : 4) + songHeight
             )
             if ans.width < 0 { ans.width = 0 }
             if ans.height < 0 { ans.height = 0 }
@@ -45,11 +47,22 @@ struct NotchView: View {
         }
     }
 
+    // lengkung cekung di atas, tempat notch menyatu dengan tepi layar
     var notchCornerRadius: CGFloat {
         switch vm.status {
-        case .closed: 8
+        case .closed: 6
         case .opened: 32
         case .popping: 10
+        }
+    }
+
+    // lengkung di bawah. notch fisik lebih bulat di bawah daripada di atas.
+    // macOS tidak memberi ukuran lengkungnya, jadi angka ini perkiraan
+    var notchBottomRadius: CGFloat {
+        switch vm.status {
+        case .closed: 12
+        case .opened: 32
+        case .popping: 14
         }
     }
 
@@ -111,8 +124,8 @@ struct NotchView: View {
                 height: notchSize.height
             )
             .clipShape(.rect(
-                bottomLeadingRadius: notchCornerRadius,
-                bottomTrailingRadius: notchCornerRadius
+                bottomLeadingRadius: notchBottomRadius,
+                bottomTrailingRadius: notchBottomRadius
             ))
             .overlay {
                 ZStack(alignment: .topTrailing) {
