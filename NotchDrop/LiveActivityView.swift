@@ -74,9 +74,15 @@ struct LiveActivityView: View {
                 .contentTransition(.numericText())
                 .foregroundStyle(.orange)
         } else if spotify.playing {
-            Image(systemName: "waveform")
-                .symbolEffect(.variableColor.iterative)
-                .foregroundStyle(.green)
+            // animasi gelombang hanya ada di macOS 14 ke atas
+            if #available(macOS 14.0, *) {
+                Image(systemName: "waveform")
+                    .symbolEffect(.variableColor.iterative)
+                    .foregroundStyle(.green)
+            } else {
+                Image(systemName: "waveform")
+                    .foregroundStyle(.green)
+            }
         }
     }
 
