@@ -17,7 +17,10 @@ class ScreenshotWatcher {
 
     // ikut lokasi simpan screenshot di macOS, bawaannya Desktop
     let folder: URL = {
-        let path = UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location")
+        let settings = UserDefaults(suiteName: "com.apple.screencapture")
+        // location-screenshot didahulukan karena kunci location bisa tertinggal di folder lama
+        let path = settings?.string(forKey: "location-screenshot")
+            ?? settings?.string(forKey: "location")
             ?? "~/Desktop"
         return URL(fileURLWithPath: (path as NSString).expandingTildeInPath, isDirectory: true)
     }()
