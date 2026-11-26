@@ -37,7 +37,18 @@ struct DropItemView: View {
         .onHover { hover = $0 }
         .scaleEffect(hover ? 1.05 : 1.0)
         .animation(vm.animation, value: hover)
-        .draggable(item)
+        // kirim file URL asli beserta tipe filenya (png, jpg, pdf, dst.) supaya app lain
+        // seperti browser, Slack, atau Preview bisa menerima; file promise bertipe .data hanya dibaca Terminal
+        .onDrag {
+            let provider = NSItemProvider(contentsOf: item.storageURL) ?? NSItemProvider()
+            provider.suggestedName = item.fileName
+            return provider
+        } preview: {
+            Image(nsImage: item.workspacePreviewImage)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 64, height: 64)
+        }
         .onTapGesture {
             guard !vm.optionKeyPressed else { return }
             vm.notchClose()
