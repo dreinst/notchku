@@ -66,6 +66,10 @@ extension NotchViewModel {
                     guard hoverTriggerRect.contains(mouseLocation) else { break }
                     notchOpen(.hover)
                     hapticSender.send()
+                case .opened where openReason == .screenshot:
+                    // pratinjau screenshot bertahan walau kursor di luar, ditutup oleh timer notchPeek;
+                    // begitu kursor masuk, diperlakukan seperti hover supaya tertutup saat keluar
+                    if notchOpenedRect.contains(mouseLocation) { openReason = .hover }
                 case .opened where openReason != .drag && !notchOpenedRect.contains(mouseLocation):
                     notchClose()
                 default:
