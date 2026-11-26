@@ -44,12 +44,16 @@ class NotchViewModel: NSObject, ObservableObject {
         case settings
     }
 
+    // CGRect.contains tidak menghitung tepi atas, padahal kursor yang didorong mentok
+    // terbaca tepat di tepi atas layar, jadi area deteksi dilebihkan 1 pt ke atas
+    private let topEdgeSlack: CGFloat = 1
+
     var notchOpenedRect: CGRect {
         .init(
             x: screenRect.origin.x + (screenRect.width - notchOpenedSize.width) / 2,
             y: screenRect.origin.y + screenRect.height - notchOpenedSize.height,
             width: notchOpenedSize.width,
-            height: notchOpenedSize.height
+            height: notchOpenedSize.height + topEdgeSlack
         )
     }
 
@@ -58,7 +62,7 @@ class NotchViewModel: NSObject, ObservableObject {
             x: screenRect.origin.x + (screenRect.width - notchOpenedSize.width) / 2,
             y: screenRect.origin.y + screenRect.height - deviceNotchRect.height,
             width: notchOpenedSize.width,
-            height: deviceNotchRect.height
+            height: deviceNotchRect.height + topEdgeSlack
         )
     }
 
@@ -71,7 +75,7 @@ class NotchViewModel: NSObject, ObservableObject {
             x: deviceNotchRect.midX - width / 2,
             y: deviceNotchRect.maxY - height,
             width: width,
-            height: height
+            height: height + topEdgeSlack
         )
     }
 
